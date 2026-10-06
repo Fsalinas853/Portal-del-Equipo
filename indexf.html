@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal del Equipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     TOKENS
+     ============================================================ */
+  :root{
+    --bg:            #EEF1EE;
+    --bg-soft:       #E5E9E4;
+    --surface:       #FFFFFF;
+    --ink:           #16231F;
+    --ink-soft:      #4B5850;
+    --line:          #CBD3CB;
+    --line-soft:     #DCE2DB;
+    --teal:          #2F6F5E;
+    --teal-dark:     #234F43;
+    --ochre:         #C98A3B;
+    --radius:        3px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:
+      radial-gradient(1100px circle at 8% -12%, rgba(47,160,232,0.30), transparent 52%),
+      radial-gradient(950px circle at 102% -8%, rgba(255,216,102,0.38), transparent 48%),
+      var(--bg);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    margin:0;
+    color:var(--ink);
+  }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 28px; }
+
+  /* ---------- header ---------- */
+  header{
+    padding:24px 0;
+    border-bottom:1px solid var(--line);
+  }
+  header .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+  }
+  .brand .mark{
+    height:44px; width:auto;
+    display:block;
+    flex-shrink:0;
+  }
+  .brand-name{
+    font-family:'Baloo 2', sans-serif;
+    font-size:24px; color:var(--ink); font-weight:700;
+    line-height:1; margin-top:-2px;
+  }
+  .header-right{ display:flex; align-items:center; gap:16px; }
+  .partner-logo{ height:26px; width:auto; display:block; }
+  #backBtn{
+    background:none; border:1px solid var(--line); border-radius:999px;
+    padding:8px 14px; font-size:14px; color:var(--ink-soft);
+    display:none;
+  }
+  #backBtn:hover{ border-color:var(--teal); color:var(--teal-dark); }
+  #backBtn.show{ display:inline-block; }
+
+  /* ---------- status bar (date / weather / verse) ---------- */
+  .status-bar{
+    border-bottom:1px solid var(--line-soft);
+  }
+  .status-inner{
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px;
+    padding:9px 28px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .status-inner .dot{ color:var(--line); }
+  #statusVerse{ font-style:italic; }
+
+  /* ---------- hero (home only) ---------- */
+  .hero{
+    margin:24px 0 36px;
+    padding:30px 34px;
+    border-radius:24px;
+    background:linear-gradient(135deg, #2FA0E8 0%, #0B4F91 100%);
+    box-shadow:0 16px 32px -18px rgba(11,79,145,0.55);
+  }
+  .hero .eyebrow{
+    font-size:13px; color:#FFD866; margin-bottom:10px; font-weight:700;
+  }
+  .hero h1{
+    font-size:clamp(28px,4vw,42px);
+    line-height:1.08;
+    max-width:16ch;
+    color:#fff;
+  }
+  .hero h1 .line2{ color:#AEDCFA; }
+  .hero p{
+    max-width:46ch; margin-top:12px; color:#E4F1FC; font-size:15.5px;
+  }
+
+  /* ---------- home grid ---------- */
+  .home-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+    grid-auto-rows:auto;
+    gap:12px;
+    padding-bottom:48px;
+    align-items:stretch;
+  }
+
+  .card{
+    background:var(--card-tint, var(--surface));
+    border:2px solid var(--card-accent, var(--line));
+    border-radius:var(--card-radius, 28px 12px 28px 12px);
+    padding:16px 18px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 24px -12px var(--card-accent, var(--teal));
+  }
+  .card .top{ display:flex; align-items:flex-start; justify-content:space-between; }
+  .card .icon{ font-size:26px; }
+  .card .count{
+    font-size:12px; color:var(--card-accent-dark, var(--ink-soft));
+    border:1px solid var(--card-accent, var(--line-soft));
+    border-radius:999px;
+    padding:3px 10px;
+    background:var(--surface);
+  }
+  .card h3{ font-size:18px; margin-top:8px; }
+  .card p{ color:var(--ink-soft); font-size:13.5px; margin-top:4px; max-width:36ch; }
+  .card .go{ margin-top:8px; font-size:13px; color:var(--card-accent-dark, var(--teal-dark)); font-weight:500; }
+
+  @media (max-width:720px){
+    .home-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- section view ---------- */
+  .section-view{ display:none; padding:48px 0 64px; }
+  .section-view.active{ display:block; }
+  .section-head{ margin-bottom:32px; }
+  .section-head .eyebrow{ font-size:14px; color:var(--ochre); margin-bottom:10px; font-weight:500; }
+  .section-head h2{ font-size:32px; }
+  .section-head p{ color:var(--ink-soft); margin-top:10px; }
+
+  .item-list{ display:flex; flex-direction:column; gap:10px; }
+  .item{
+    display:flex; align-items:center; gap:16px;
+    padding:11px 18px;
+    background:var(--surface);
+    border:2px solid var(--card-accent, var(--line-soft));
+    border-radius:20px 6px 20px 6px;
+  }
+  .item .icon{ font-size:22px; width:32px; text-align:center; flex-shrink:0; }
+  .item .info{ flex:1; min-width:0; }
+  .item .info .tag{ font-size:12.5px; color:var(--card-accent-dark, var(--teal-dark)); font-weight:500; }
+  .item .info h4{ font-family:'Work Sans',sans-serif; font-weight:600; font-size:16px; margin:2px 0 0; }
+  .item .info span.desc{ font-size:14px; color:var(--ink-soft); }
+  .item .open{
+    flex-shrink:0; font-size:14px; color:var(--card-accent-dark, var(--ink-soft));
+    border:1px solid var(--card-accent, var(--line)); border-radius:999px;
+    padding:7px 16px; white-space:nowrap; background:var(--surface);
+  }
+  .item .open:hover{ background:var(--card-accent, var(--teal)); color:#fff; }
+
+  #home-view{ display:block; }
+
+  footer{ border-top:1px solid var(--line); padding:22px 0; margin-top:20px; }
+  footer .wrap{ font-size:13px; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <img class="mark" id="markLogo" src="data:image/png;base64,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" alt="Logo">
+      <span class="brand-name" id="brandName">Portal del Equipo</span>
+    </div>
+    <div class="header-right">
+      <button id="backBtn" onclick="goHome()">← Inicio</button>
+      <!--
+        LOGO: poné acá tu archivo de logo oficial (por ejemplo "logo-mp.png"),
+        en la misma carpeta que este HTML, y descomentá la línea de abajo.
+        Si el logo no aparece, revisá que el nombre de archivo coincida.
+      -->
+      <!-- <img src="logo-mp.png" alt="Logo" class="partner-logo"> -->
+    </div>
+  </div>
+</header>
+
+<div class="status-bar">
+  <div class="wrap status-inner">
+    <span id="statusDate"></span>
+    <span class="dot">·</span>
+    <span id="statusWeather">Cargando clima…</span>
+    <span class="dot">·</span>
+    <span id="statusVerse"></span>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- ===================== HOME ===================== -->
+  <div id="home-view">
+    <div class="hero">
+      <div class="eyebrow" id="heroEyebrow">Bienvenido/a</div>
+      <h1 id="heroTitle">Todo lo del equipo,<br>en un solo lugar</h1>
+      <p id="heroSub">Capacitaciones, formularios, herramientas y links útiles para el día a día.</p>
+    </div>
+    <div class="home-grid" id="homeGrid"></div>
+  </div>
+
+  <!-- ===================== SECTIONS (generadas por JS) ===================== -->
+  <div id="sections-container"></div>
+
+</main>
+
+<footer>
+  <div class="wrap">Actualizado a mano por el equipo · reemplazá el contenido de ejemplo en el archivo</div>
+</footer>
+
+<script>
+/* ================================================================
+   CONFIG — EDITÁ SOLO ESTA PARTE PARA CARGAR TU CONTENIDO REAL
+   No hace falta tocar el HTML ni el CSS: agregá, borrá o modificá
+   los objetos de cada sección y se actualiza solo.
+   ================================================================ */
+const CONFIG = {
+  brand: {
+    name: "Equipo Faus (Downgrade)",  // nombre que aparece arriba
+    initial: "E",                     // letra del logo chico
+    eyebrow: "Bienvenido/a al mejor equipo!",
+    heroTitle: 'Todo lo del equipo,<br><span class="line2">en un solo lugar</span>',
+    heroSub: "Capacitaciones, formularios, herramientas y links útiles para el día a día del equipo."
+  },
+
+  sections: [
+    {
+      key: "formularios",
+      icon: "📋",
+      accent: "#C9585B",
+      title: "Ausencias y licencias",
+      desc: "Formulario para avisar faltas o pedir días.",
+      items: [
+        { icon:"📆", tag:"RRHH", title:"Ausencias y licencias", desc:"Formulario para avisar faltas o pedir días.", url:"https://mjochoa87.github.io/novedades_principalidad/" }
+      ]
+    },
+    {
+      key: "mi-logueo",
+      icon: "🕒",
+      accent: "#E0A23B",
+      title: "Mi logueo",
+      desc: "Registro de logueo del equipo.",
+      items: [
+        { icon:"🕒", tag:"Logueo", title:"Mi logueo", desc:"Planilla de registro de logueo.", url:"https://docs.google.com/spreadsheets/d/1c3_tprwFLR-kfn-JC2q8pyBBeBgPhcpfzR3xiRiGiXM/edit?gid=1564856814#gid=1564856814" }
+      ]
+    },
+    {
+      key: "gestion-necesaria",
+      icon: "📲",
+      accent: "#3E9BC9",
+      title: "Formularios de Gestión Necesaria",
+      desc: "Formularios y planillas de uso frecuente para la gestión diaria.",
+      items: [
+        { icon:"📱", tag:"Point", title:"Pedido de Point a $999", desc:"Formulario de pedido de Point.", url:"https://docs.google.com/forms/d/e/1FAIpQLSd1Qfjy_GODQC0GCKfK3N22VQxNfbqlz7AbukNTnGo47_0NmQ/viewform" },
+        { icon:"📦", tag:"Reposición", title:"Pedido de Reposición", desc:"Formulario de pedido de reposición.", url:"https://docs.google.com/forms/d/1E3Zl_rMvHtuZjjzxRIp7-fiyrP6Lz-uixFRtTM0thbw/viewform?edit_requested=true" },
+        { icon:"📲", tag:"Simulador", title:"Form Simulador", desc:"Planilla del simulador.", url:"https://docs.google.com/spreadsheets/d/1MY3B59MfLY2JS2Es5ac03-Y0mE4PTX5muGFhIvBeJAw/edit?usp=sharing" },
+        { icon:"📊", tag:"Tasas", title:"Formulario de Tasas", desc:"Planilla de carga de tasas.", url:"https://docs.google.com/spreadsheets/d/1sOVFXX55Q0jGzk3PmWg8-c4dgqyGUiPp3ZfohHSXvfg/edit?pli=1&gid=1138152077#gid=1138152077" },
+        { icon:"📊", tag:"Tasas", title:"Formulario de Solicitud de Tasas", desc:"Formulario para solicitar tasas.", url:"https://docs.google.com/forms/d/e/1FAIpQLSdFZQBaE2OtChZlJ1xnos0AcFBABw9ACO4vyqx3PfZvfENCvg/viewform?usp=send_form" },
+        { icon:"✅", tag:"Convertidos", title:"Formulario de Convertidos", desc:"Carga de convertidos.", url:"https://docs.google.com/forms/d/e/1FAIpQLSeH7-kpLgr4WWqq4_ih2dlZlBY6dkUZB9OiXTGkBJysJBodFg/viewform" }
+      ]
+    },
+    {
+      key: "reporte-diario",
+      icon: "📊",
+      accent: "#4A6FE3",
+      title: "Reporte de resultados diarios",
+      desc: "Carga de avances del día.",
+      items: [
+        { icon:"📊", tag:"Reporte", title:"Reporte de resultados diarios", desc:"Carga de avances del día.", url:"https://docs.google.com/spreadsheets/d/1Y3Ch_Ovi1Juvk_jCYLYzc-J7AzPgT3ck/edit?gid=543643922#gid=543643922" }
+      ]
+    },
+    {
+      key: "links",
+      icon: "🔗🛠️",
+      accent: "#2F6F5E",
+      title: "Links útiles + Herramientas",
+      desc: "Accesos rápidos que el equipo usa todos los días.",
+      items: [
+        { icon:"📄", tag:"Herramienta", title:"Generador de PDF", desc:"Generá y descargá propuestas comerciales en PDF.", url:"https://script.google.com/a/macros/mercadolibre.com/s/AKfycbxQBHRR1H3W9u6yWM5vIu5EY7emFg2Jh8QaWP83rADGag7aVpGgw-aPplWDjnSkj7uV/exec" },
+        { icon:"📊", tag:"Herramienta", title:"Simulador Comparativas SMBs", desc:"Compará costos de MP contra la competencia.", url:"https://anita081181.github.io/simuladordecomparativasmbs/" },
+        { icon:"🗂️", tag:"Herramienta", title:"Generador de propuestas (Grid)", desc:"Archivos y plantillas del equipo en Grid.", url:"https://grid.adminml.com/d/01M23KZFW6V9CSKCR3PB0PV2KN/view" },
+        { icon:"🧮", tag:"Herramienta", title:"Calculadora integral (Point, QR y Link de pago)", desc:"Costos y condiciones de Point, QR y Link de Pago.", url:"https://docs.google.com/spreadsheets/d/1x2SYcCI0eyZwhwBdaW8fB81gwy2FQ1nOCDDpDDc8hFM/edit?gid=1458588672#gid=1458588672" },
+        { icon:"📘", tag:"Herramienta", title:"Manual de Gestión de Leads", desc:"Guía para la gestión y seguimiento de leads.", url:"https://docs.google.com/presentation/d/1Va2mkKheuC0BJ_dVWJxZs0lIxnv0dNbGl9fdQrZJKjc/edit" },
+        { icon:"🧮", tag:"Herramienta", title:"Calculadora de Rentabilidad", desc:"Rentabilidad de tus comercios.", url:"https://docs.google.com/spreadsheets/d/1J4qIEl-Q9oZi2PVrFy_fcdorhlmUGkOVT9Xi-tSq6CI/edit?gid=1281104284#gid=1281104284" },
+        { icon:"🎓", tag:"Herramienta", title:"Capacitación Herramientas 06-2026", desc:"Presentación completa de herramientas de gestión comercial.", url:"https://docs.google.com/presentation/d/12vzkOANoH5iUc7tRJPXK-PGrc_CcD37GcptY-_YYpZk/edit" },
+        { icon:"💬", tag:"Comunicación", title:"Slack",   desc:"Canal del equipo en Slack.", url:"https://slack.com/intl/es-us/" },
+        { icon:"📱", tag:"Comunicación", title:"WhatsApp",   desc:"Grupo del equipo en WhatsApp.", url:"https://chat.whatsapp.com/FbuSwIfbr6JAOjfFbj7F3V" }
+      ]
+    },
+    {
+      key: "capacitaciones",
+      icon: "🎓",
+      accent: "#3E7CB1",
+      title: "Capacitaciones",
+      desc: "Materiales de formación del equipo.",
+      items: [
+        { icon:"💳", tag:"Créditos", title:"Capacitación de Créditos", desc:"", url:"https://docs.google.com/presentation/d/1E0wW0QSoh7HbQyGkiglWloEgjsrlb7HHmQ5iHXGMflw/edit" },
+        { icon:"🧾", tag:"Impuestos", title:"Taller de Impuestos", desc:"", url:"https://docs.google.com/presentation/d/16AIN1ELaZ1V4_bICAANr6W4kEDG_9S5XnS6qnMhqFCc/edit?slide=id.g2d80934f365_0_33#slide=id.g2d80934f365_0_33" },
+        { icon:"🤝", tag:"Abordaje", title:"Taller de Abordaje", desc:"", url:"https://docs.google.com/presentation/d/1fGaXzSmf4y2oZgpq5tVeXpxQQjdWMvk81eQgsi7dt3E/edit?slide=id.g2d80934f365_0_33#slide=id.g2d80934f365_0_33" },
+        { icon:"🧾", tag:"Impuestos", title:"Capacitación de Impuestos", desc:"", url:"https://docs.google.com/presentation/d/1fOto30I1DAUunLgCS2S-OvVJL4ijdRdQ/edit?slide=id.p1#slide=id.p1" },
+        { icon:"🤝", tag:"Negociaciones", title:"Capacitación de Negociaciones", desc:"", url:"https://docs.google.com/presentation/d/1Piot7A1ojrNQBZGmMWzoeSHjiQIxG37Ets8UHU7MR7I/edit?slide=id.g3e1aeae8942_0_0#slide=id.g3e1aeae8942_0_0" }
+      ]
+    },
+    {
+      key: "competiciones",
+      icon: "🏆",
+      accent: "#9B5DB0",
+      title: "Competiciones internas",
+      desc: "Rankings, desafíos y premios del equipo.",
+      items: [
+        { icon:"🥇", tag:"Ranking",  title:"Ranking del mes",        desc:"Tabla de posiciones actualizada." },
+        { icon:"🎯", tag:"Desafío",  title:"Desafío en curso",        desc:"Objetivo, reglas y premio del desafío activo." }
+      ]
+    },
+    {
+      key: "presencialidad",
+      icon: "📅",
+      accent: "#3E9B7C",
+      title: "Presencialidad",
+      desc: "Calendario de asistencia al equipo.",
+      items: [
+        { icon:"📊", tag:"Planilla",   title:"Planilla completa",        desc:"Detalle y capacidad por semana.", url:"https://docs.google.com/spreadsheets/d/1PmRxIONfnz_kyXO4qRMAKKsXn-iTbniDYRG6uIFJmJQ/edit?gid=1696911585#gid=1696911585" }
+      ]
+    }
+  ]
+};
+
+/* ================================================================
+   RENDER — no hace falta tocar de acá para abajo
+   ================================================================ */
+function renderAll(){
+  document.getElementById('brandName').textContent  = CONFIG.brand.name;
+  document.getElementById('heroEyebrow').textContent = CONFIG.brand.eyebrow;
+  document.getElementById('heroTitle').innerHTML     = CONFIG.brand.heroTitle;
+  document.getElementById('heroSub').textContent     = CONFIG.brand.heroSub;
+
+  // Formas de esquina orgánicas: se van alternando entre secciones/items
+  const shapes = [
+    '28px 12px 28px 12px',
+    '12px 28px 12px 28px',
+    '30px 30px 8px 30px',
+    '8px 30px 30px 30px'
+  ];
+  const tint = (hex, alpha) => {
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  };
+  const shade = (hex, amt) => {
+    const r = Math.max(0, parseInt(hex.slice(1,3),16) - amt);
+    const g = Math.max(0, parseInt(hex.slice(3,5),16) - amt);
+    const b = Math.max(0, parseInt(hex.slice(5,7),16) - amt);
+    return `rgb(${r},${g},${b})`;
+  };
+
+  const grid = document.getElementById('homeGrid');
+  grid.innerHTML = CONFIG.sections.map((s, i) => `
+    <div class="card" onclick="goSection('${s.key}')" style="
+      --card-accent:${s.accent};
+      --card-tint:${tint(s.accent, 0.05)};
+      --card-accent-dark:${shade(s.accent, 40)};
+      --card-radius:${shapes[i % shapes.length]};
+    ">
+      <div class="top">
+        <span class="icon">${s.icon}</span>
+        <span class="count">${s.items.length} elementos</span>
+      </div>
+      <div>
+        <h3>${s.title}</h3>
+        <p>${s.desc}</p>
+        <div class="go">Ir a ${s.title.toLowerCase()} →</div>
+      </div>
+    </div>
+  `).join('');
+
+  const container = document.getElementById('sections-container');
+  container.innerHTML = CONFIG.sections.map(s => `
+    <div class="section-view" id="view-${s.key}" style="
+      --card-accent:${s.accent};
+      --card-accent-dark:${shade(s.accent, 40)};
+    ">
+      <div class="section-head">
+        <div class="eyebrow">${s.icon} ${s.title}</div>
+        <h2>${s.title}</h2>
+        <p>${s.desc}</p>
+      </div>
+      <div class="item-list">
+        ${s.items.map((it, i) => `
+          <div class="item" style="border-radius:${shapes[i % shapes.length]};">
+            <span class="icon">${it.icon}</span>
+            <div class="info">
+              <span class="tag">${it.tag}</span>
+              <h4>${it.title}</h4>
+              <span class="desc">${it.desc}</span>
+            </div>
+            ${it.url ? `<a class="open" href="${it.url}" target="_blank" rel="noopener">Abrir</a>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function goSection(key){
+  document.getElementById('home-view').style.display = 'none';
+  document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + key).classList.add('active');
+  document.getElementById('backBtn').classList.add('show');
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  document.querySelectorAll('.section-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('home-view').style.display = 'block';
+  document.getElementById('backBtn').classList.remove('show');
+  window.scrollTo(0,0);
+}
+
+renderAll();
+
+/* ================================================================
+   Fecha, clima de Buenos Aires y frase del día
+   La frase se elige sola según el día del año, así que cambia
+   todos los días sin que nadie tenga que tocar nada.
+   Para sumar o cambiar frases, editá el array PHRASES de abajo.
+   ================================================================ */
+const PHRASES = [
+  "Con la fuerza de Dios, podés con todo lo que se te presente hoy. — Filipenses 4:13",
+  "Dios cuida de vos como un buen pastor: no te va a faltar nada. — Salmo 23:1",
+  "Si ponés tus planes en manos de Dios, van a salir bien. — Proverbios 16:3",
+  "Sé fuerte y valiente, no tengas miedo: Dios está con vos a donde vayas. — Josué 1:9",
+  "La alegría que viene de Dios es la fuerza que necesitás hoy. — Nehemías 8:10",
+  "Todo tiene su momento: hay un tiempo para cada cosa en la vida. — Eclesiastés 3:1",
+  "Dios es tu refugio y tu fuerza, siempre está ahí cuando lo necesitás. — Salmo 46:1",
+  "Confiale tu camino a Dios, y Él se va a encargar del resto. — Salmo 37:5",
+  "Si confiás en Dios, no vas a quedar en vergüenza. — Salmo 25:2",
+  "No te canses de hacer el bien: tarde o temprano vas a ver los resultados. — Gálatas 6:9",
+  "Da gracias en cualquier situación, así es como Dios quiere que vivas. — 1 Tesalonicenses 5:18",
+  "El amor es paciente y sabe entender a los demás. — 1 Corintios 13:4",
+  "No te preocupes por el mañana, cada día trae lo suyo. — Mateo 6:34",
+  "Hoy es un día que Dios hizo para vos: disfrutalo y estate contento. — Salmo 118:24"
+];
+
+function diaDelAnio(d){
+  const inicio = new Date(d.getFullYear(), 0, 0);
+  const diff = d - inicio;
+  return Math.floor(diff / 86400000);
+}
+
+function actualizarFecha(){
+  const ahora = new Date();
+  const texto = new Intl.DateTimeFormat('es-AR', {
+    weekday:'long', day:'numeric', month:'long',
+    timeZone:'America/Argentina/Buenos_Aires'
+  }).format(ahora);
+  document.getElementById('statusDate').textContent =
+    texto.charAt(0).toUpperCase() + texto.slice(1);
+
+  const idx = diaDelAnio(ahora) % PHRASES.length;
+  document.getElementById('statusVerse').textContent = PHRASES[idx];
+}
+
+function climaEmoji(code){
+  if (code === 0) return '☀️ Despejado';
+  if (code === 1 || code === 2) return '🌤️ Parcialmente nublado';
+  if (code === 3) return '☁️ Nublado';
+  if (code === 45 || code === 48) return '🌫️ Neblina';
+  if (code >= 51 && code <= 67) return '🌧️ Lluvia';
+  if (code >= 71 && code <= 77) return '❄️ Nieve';
+  if (code >= 80 && code <= 82) return '🌦️ Chaparrones';
+  if (code >= 95) return '⛈️ Tormenta';
+  return '🌡️ Clima';
+}
+
+async function actualizarClima(){
+  try{
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-34.6037&longitude=-58.3816&current_weather=true');
+    const data = await res.json();
+    const t = Math.round(data.current_weather.temperature);
+    const desc = climaEmoji(data.current_weather.weathercode);
+    document.getElementById('statusWeather').textContent = `${desc} · ${t}°C en Buenos Aires`;
+  }catch(e){
+    document.getElementById('statusWeather').textContent = '🌡️ Clima no disponible';
+  }
+}
+
+actualizarFecha();
+actualizarClima();
+</script>
+</body>
+</html>
